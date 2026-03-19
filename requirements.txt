@@ -1,0 +1,7 @@
+pandas==2.2.2
+pyarrow==16.1.0
+requests==2.32.3
+tenacity==8.3.0
+pytest==8.2.2
+pytest-mock==3.14.0
+duckdb==0.10.3

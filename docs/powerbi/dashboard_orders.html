@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Orders Analytics Dashboard — Power BI</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f3f2f1; }
+  .pb-header { background: #2a2a2a; color: #fff; padding: 10px 20px; display: flex; align-items: center; gap: 12px; }
+  .pb-header-title { font-size: 14px; font-weight: 600; letter-spacing: 0.02em; }
+  .pb-header-sub { font-size: 11px; color: #aaa; margin-left: auto; }
+  .pb-toolbar { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 6px 20px; display: flex; gap: 20px; align-items: center; }
+  .pb-tb-btn { font-size: 11px; color: #555; padding: 4px 8px; border-radius: 3px; cursor: pointer; }
+  .pb-tb-btn.active { background: #e8f0fe; color: #1a73e8; font-weight: 600; }
+  .pb-canvas { padding: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .kpi { background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; padding: 14px 16px; }
+  .kpi-label { font-size: 11px; color: #666; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi-value { font-size: 26px; font-weight: 700; color: #252525; line-height: 1; }
+  .kpi-sub { font-size: 11px; color: #888; margin-top: 4px; }
+  .kpi-up { color: #107c41; } .kpi-down { color: #c0392b; }
+  .chart-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; padding: 14px 16px; }
+  .chart-box.span2 { grid-column: span 2; }
+  .chart-box.span3 { grid-column: span 3; }
+  .chart-title { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 12px; }
+  .chart-subtitle { font-size: 10px; color: #999; margin-top: -10px; margin-bottom: 10px; }
+  .pb-footer { background: #f3f2f1; padding: 8px 20px; display: flex; align-items: center; gap: 12px; }
+  .page-dot { width: 28px; height: 6px; border-radius: 3px; background: #1a73e8; }
+  .page-dot.inactive { background: #ccc; }
+  table.pb-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.pb-table th { background: #f8f8f8; color: #555; font-weight: 600; text-align: left; padding: 6px 10px; border-bottom: 2px solid #e0e0e0; font-size: 11px; text-transform: uppercase; }
+  table.pb-table td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; color: #333; }
+  .bar-h { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .bar-label { font-size: 11px; color: #555; width: 70px; text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; background: #f0f0f0; border-radius: 2px; height: 18px; }
+  .bar-fill { height: 100%; border-radius: 2px; background: #1a73e8; }
+  .bar-val { font-size: 11px; color: #333; width: 50px; flex-shrink: 0; }
+  .slicer { background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; padding: 14px 16px; }
+  .slicer-item { font-size: 12px; padding: 4px 0; color: #444; display: flex; align-items: center; gap: 8px; }
+  .slicer-item input { accent-color: #1a73e8; }
+  .donut-wrap { display: flex; align-items: center; gap: 16px; }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #444; margin-bottom: 6px; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .note { background: #fff8e1; border-left: 4px solid #f2c811; padding: 10px 14px; margin: 0 16px 12px; font-size: 12px; color: #555; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="pb-header">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="#f2c811"><rect x="2" y="2" width="9" height="9" rx="1"/><rect x="13" y="2" width="9" height="9" rx="1" opacity=".6"/><rect x="2" y="13" width="9" height="9" rx="1" opacity=".6"/><rect x="13" y="13" width="9" height="9" rx="1" opacity=".3"/></svg>
+  <span class="pb-header-title">Orders Analytics Dashboard</span>
+  <span class="pb-header-sub">Fuente: ETL Pipeline — fact_order / dim_user / dim_product &nbsp;|&nbsp; Actualizado: Aug 22, 2025</span>
+</div>
+
+<div class="pb-toolbar">
+  <span class="pb-tb-btn active">Resumen</span>
+  <span class="pb-tb-btn">Detalle órdenes</span>
+  <span class="pb-tb-btn">Usuarios</span>
+  <span class="pb-tb-btn">Productos</span>
+  <span style="margin-left:auto;font-size:11px;color:#888;">Filtro: Aug 20 – Aug 22, 2025</span>
+</div>
+
+<div class="note">
+  Nota: Este dashboard se conecta a <code>output/curated/</code> (archivos Parquet) cargados en Redshift.
+  En Power BI Desktop: Obtener datos → Amazon Redshift → servidor/esquema → seleccionar <code>fact_order</code>, <code>dim_user</code>, <code>dim_product</code>.
+</div>
+
+<div class="pb-canvas">
+
+  <div class="kpi">
+    <div class="kpi-label">Total órdenes</div>
+    <div class="kpi-value">5</div>
+    <div class="kpi-sub kpi-up">▲ 2 vs período anterior</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Ingresos totales</div>
+    <div class="kpi-value">$650.49</div>
+    <div class="kpi-sub kpi-up">▲ 18% vs período anterior</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Ticket promedio</div>
+    <div class="kpi-value">$130.10</div>
+    <div class="kpi-sub" style="color:#888;">Por orden procesada</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Registros rechazados</div>
+    <div class="kpi-value" style="color:#c0392b;">2</div>
+    <div class="kpi-sub kpi-down">null created_at / items vacíos</div>
+  </div>
+
+  <div class="chart-box span2">
+    <div class="chart-title">Ingresos por día</div>
+    <div class="chart-subtitle">Particionado por order_date</div>
+    <canvas id="barChart" height="160"></canvas>
+  </div>
+
+  <div class="chart-box">
+    <div class="chart-title">Distribución por fuente</div>
+    <div class="donut-wrap">
+      <canvas id="donutChart" width="110" height="110"></canvas>
+      <div>
+        <div class="leg-item"><span class="leg-dot" style="background:#1a73e8;"></span>api — 60%</div>
+        <div class="leg-item"><span class="leg-dot" style="background:#34a853;"></span>web — 20%</div>
+        <div class="leg-item"><span class="leg-dot" style="background:#f2c811;"></span>mobile — 20%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slicer">
+    <div class="chart-title">País (filtro)</div>
+    <div class="slicer-item"><input type="checkbox" checked> US</div>
+    <div class="slicer-item"><input type="checkbox" checked> CO</div>
+    <div class="slicer-item"><input type="checkbox" checked> MX</div>
+    <div class="slicer-item"><input type="checkbox" checked> BR</div>
+  </div>
+
+  <div class="chart-box span3">
+    <div class="chart-title">Unidades vendidas por producto</div>
+    <div class="bar-h"><span class="bar-label">p_1 (Headphones)</span><div class="bar-track"><div class="bar-fill" style="width:80%;"></div></div><span class="bar-val">3 uds</span></div>
+    <div class="bar-h"><span class="bar-label">p_2 (USB Cable)</span><div class="bar-track"><div class="bar-fill" style="width:53%;"></div></div><span class="bar-val">2 uds</span></div>
+    <div class="bar-h"><span class="bar-label">p_3 (Keyboard)</span><div class="bar-track"><div class="bar-fill" style="width:27%;"></div></div><span class="bar-val">1 ud</span></div>
+    <div class="bar-h"><span class="bar-label">p_4 (Laptop Stand)</span><div class="bar-track"><div class="bar-fill" style="width:80%;"></div></div><span class="bar-val">3 uds</span></div>
+  </div>
+
+  <div class="chart-box span2">
+    <div class="chart-title">Top usuarios por ingresos</div>
+    <table class="pb-table">
+      <thead><tr><th>user_id</th><th>País</th><th>Órdenes</th><th>Ingresos</th></tr></thead>
+      <tbody>
+        <tr><td>u_1</td><td>US</td><td>2</td><td>$205.50</td></tr>
+        <tr><td>u_2</td><td>CO</td><td>2</td><td>$299.99</td></tr>
+        <tr><td>u_3</td><td>MX</td><td>1</td><td>$45.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chart-box span2">
+    <div class="chart-title">Detalle fact_order (curated Parquet)</div>
+    <table class="pb-table">
+      <thead><tr><th>order_id</th><th>order_date</th><th>amount</th><th>fuente</th></tr></thead>
+      <tbody>
+        <tr><td>o_1001</td><td>2025-08-20</td><td>$125.50</td><td>api</td></tr>
+        <tr><td>o_1002</td><td>2025-08-20</td><td>$200.00</td><td>web</td></tr>
+        <tr><td>o_1003</td><td>2025-08-21</td><td>$45.00</td><td>—</td></tr>
+        <tr><td>o_1004</td><td>2025-08-21</td><td>$80.00</td><td>mobile</td></tr>
+        <tr><td>o_1006</td><td>2025-08-22</td><td>$99.99</td><td>api</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="pb-footer">
+  <div class="page-dot"></div>
+  <div class="page-dot inactive"></div>
+  <div class="page-dot inactive"></div>
+  <span style="font-size:10px;color:#999;margin-left:auto;">Power BI Desktop — Informe ETL Orders | Página 1 de 3</span>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Aug 20', 'Aug 21', 'Aug 22'],
+    datasets: [{ label: 'Ingresos ($)', data: [325.50, 125.00, 99.99], backgroundColor: '#1a73e8', borderRadius: 3 }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { font: { size: 10 }, callback: v => '$' + v } },
+      x: { ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['api', 'web', 'mobile'],
+    datasets: [{ data: [3, 1, 1], backgroundColor: ['#1a73e8', '#34a853', '#f2c811'], borderWidth: 1 }]
+  },
+  options: { responsive: false, plugins: { legend: { display: false } }, cutout: '65%' }
+});
+</script>
+</body>
+</html>

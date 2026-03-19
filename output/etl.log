@@ -1,0 +1,32 @@
+2026-03-18 20:34:15,711 [INFO] etl_job — ============================================================
+2026-03-18 20:34:15,712 [INFO] etl_job — ETL job started | since=None
+2026-03-18 20:34:15,712 [INFO] etl_job — ============================================================
+2026-03-18 20:34:15,712 [INFO] src.api_client — Using local fallback file: C:\Users\usuario\Downloads\etl-test\sample_data\api_orders.json
+2026-03-18 20:34:15,712 [INFO] src.api_client — Loaded 7 orders from local file (since=None)
+2026-03-18 20:34:15,713 [INFO] etl_job — Raw JSON written → C:\Users\usuario\Downloads\etl-test\output\raw\orders_full.json (7 records)
+2026-03-18 20:34:15,713 [INFO] src.db — Loading users from CSV: C:\Users\usuario\Downloads\etl-test\sample_data\users.csv
+2026-03-18 20:34:15,718 [INFO] src.db — Loaded 5 users
+2026-03-18 20:34:15,718 [INFO] src.db — Loading products from CSV: C:\Users\usuario\Downloads\etl-test\sample_data\products.csv
+2026-03-18 20:34:15,719 [INFO] src.db — Loaded 5 products
+2026-03-18 20:34:15,719 [WARNING] src.transforms — order o_1004 sku p_2: null price → 0.0
+2026-03-18 20:34:15,720 [WARNING] src.transforms — Rejecting order o_1005: null created_at
+2026-03-18 20:34:15,720 [INFO] src.transforms — Validation: 6 valid, 1 rejected
+2026-03-18 20:34:15,721 [WARNING] etl_job — Rejected records written → C:\Users\usuario\Downloads\etl-test\output\raw\orders_rejected.json
+2026-03-18 20:34:15,722 [INFO] src.transforms — Dedup: 6 → 5 rows (removed 1 duplicates)
+2026-03-18 20:34:15,727 [INFO] src.transforms — dim_user: 5 rows
+2026-03-18 20:34:15,727 [INFO] src.transforms — dim_product: 5 rows
+2026-03-18 20:34:15,880 [INFO] etl_job — Curated Parquet → C:\Users\usuario\Downloads\etl-test\output\curated\fact_order\order_date=2025-08-20\data.parquet (2 rows)
+2026-03-18 20:34:15,884 [INFO] etl_job — Curated Parquet → C:\Users\usuario\Downloads\etl-test\output\curated\fact_order\order_date=2025-08-21\data.parquet (2 rows)
+2026-03-18 20:34:15,887 [INFO] etl_job — Curated Parquet → C:\Users\usuario\Downloads\etl-test\output\curated\fact_order\order_date=2025-08-22\data.parquet (1 rows)
+2026-03-18 20:34:15,889 [INFO] etl_job — Curated Parquet → C:\Users\usuario\Downloads\etl-test\output\curated\dim_user\data.parquet (5 rows)
+2026-03-18 20:34:15,891 [INFO] etl_job — Curated Parquet → C:\Users\usuario\Downloads\etl-test\output\curated\dim_product\data.parquet (5 rows)
+2026-03-18 20:34:15,891 [INFO] etl_job — ------------------------------------------------------------
+2026-03-18 20:34:15,891 [INFO] etl_job — ETL completed successfully
+2026-03-18 20:34:15,891 [INFO] etl_job —   raw orders received   : 7
+2026-03-18 20:34:15,892 [INFO] etl_job —   valid after validation: 6
+2026-03-18 20:34:15,892 [INFO] etl_job —   after dedup           : 5
+2026-03-18 20:34:15,892 [INFO] etl_job —   after incremental     : 5
+2026-03-18 20:34:15,892 [INFO] etl_job —   fact_order rows       : 5
+2026-03-18 20:34:15,892 [INFO] etl_job —   dim_user rows         : 5
+2026-03-18 20:34:15,892 [INFO] etl_job —   dim_product rows      : 5
+2026-03-18 20:34:15,892 [INFO] etl_job — ============================================================
