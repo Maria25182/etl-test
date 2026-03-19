@@ -2,7 +2,7 @@
 
 ## Por qué pandas y no PySpark
 
-Decidí usar pandas con pyarrow en lugar de PySpark principalmente por practicidad. Para el volumen de datos que maneja este pipeline (órdenes de una API, dimensiones en CSV) levantar un contexto de Spark es contadictorio: agrega dependencia de JVM, tiempo de arranque y complejidad de configuración sin ningún beneficio real. Con pandas el job corre en segundos, el código es directo y los tests son triviales de escribir.
+Decidí usar pandas con pyarrow en lugar de PySpark principalmente por practicidad. Para el volumen de datos que maneja este pipeline (órdenes de una API, dimensiones en CSV) levantar un contexto de Spark simplemente no tiene sentido: agrega dependencia de JVM, tiempo de arranque y complejidad de configuración sin ningún beneficio real. Con pandas el job corre en segundos, el código es directo y los tests son triviales de escribir.
 
 Dicho esto, la lógica de transformación en `transforms.py` trabaja con DataFrames que tienen la misma interfaz conceptual que Spark DataFrames, así que migrar a PySpark si el volumen crece sería relativamente sencillo. El umbral donde empezaría a evaluar ese cambio sería alrededor de 50-100M de filas por ejecución o la necesidad de procesamiento realmente distribuido.
 
