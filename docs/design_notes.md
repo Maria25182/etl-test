@@ -39,7 +39,7 @@ En Redshift, para cargas desde S3, uso el patrón staging: `COPY` a tabla tempor
 
 ## Incrementalidad
 
-El flag `--since` (o su alias `--last-processed`) recibe un timestamp en ISO8601 y filtra las órdenes cuyo `created_at` sea posterior a ese valor. En producción ese timestamp vendría de algún registro de estado — puede ser una tabla `etl_watermark` en la base de datos, un archivo `_last_run.json` guardado en S3, o simplemente una variable en el orquestador (Airflow, Step Functions). Al finalizar cada ejecución exitosa se actualizaría con el `max(created_at)` del batch procesado.
+El flag `--since` (o su alias `--last-processed`) recibe un timestamp en ISO8601 y filtra las órdenes cuyo `created_at` sea posterior a ese valor. En producción ese timestamp vendría de algún registro de estado — puede ser una tabla `etl_watermark` en la base de datos, un archivo `_last_run.json` guardado en S3, o simplemente una variable en el orquestador (Airflow, Step Functions).Al terminar bien, se guarda el último timestamp procesado para la siguiente corrida
 
 ---
 
@@ -77,7 +77,7 @@ En producción el job emitiría los mismos logs estructurados que ya produce (ti
 
 Las métricas que publicaría como custom metrics serían: registros recibidos, registros rechazados, filas escritas en curated, duración total del job y número de reintentos a la API.
 
-Las alertas que configuraría son cuatro: si la tasa de rechazo supera el 5% probablemente el esquema de la API cambió; si se escriben 0 filas en un día laborable algo falló en la fuente; si la duración es el doble de la media histórica hay un problema de rendimiento; y cualquier fallo del job (exit code distinto de 0) dispara alerta inmediata con el stack trace.
+Las alertas que configuraría son cuatro: si la tasa de rechazo supera el 5% probablemente el esquema de la API cambió; si se escriben 0 filas en un día laborable algo falló en la fuente; si la duración es el doble de la media histórica hay un problema de rendimiento; y si el job falla por cualquier razón, llega alerta de inmediato con el detalle del error.
 
 El hecho de guardar siempre el raw JSON permite re-procesar cualquier día anterior sin volver a llamar a la API, lo que simplifica bastante la recuperación ante fallos.
 
